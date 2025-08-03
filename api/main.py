@@ -1,11 +1,13 @@
-from fastapi import FastAPI, Request
-from ai_engine.analyzer import analyze_text
+from fastapi import FastAPI, Body
+from pydantic import BaseModel
+from ai_engine.analyzer import analyze_traits
 
 app = FastAPI()
 
+class AnalyzeRequest(BaseModel):
+    text: str
+
 @app.post("/analyze")
-async def analyze(request: Request):
-    data = await request.json()
-    text = data.get("text", "")
-    result = analyze_text(text)
-    return result
+def analyze(request: AnalyzeRequest):
+    result = analyze_traits(request.text)
+    return {"analysis": result}
