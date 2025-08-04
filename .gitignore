@@ -3,4 +3,5 @@ __pycache__/
 .replit
 replit.nix
 ai_engine/trait_profile.json
+ai_engine/trait_models.pkl
 green_users.db
