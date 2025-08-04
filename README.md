@@ -1,13 +1,15 @@
-# AI Engine for Green Trait Analyzer
+# Green Trait Analyzer
 
-This folder contains the core AI logic for analyzing user answers in the Green spiritual dating app.
+A lightweight analyzer for the Green spiritual dating app. Scores traits (empathy, narcissism, growth mindset, emotional maturity, openness to difference) from 8 onboarding questions using keyword matching.
 
-## Files
-- `ai_analyzer.py`: Analyzes answers to 8 questions to score traits like empathy, narcissism, growth mindset, emotional maturity, and openness to difference.
-- `trait_model.pkl`: Placeholder for a future trained model (not used currently).
-- `trait_profile.json`: Output file with trait scores (generated when running `ai_analyzer.py`).
+## Structure
+- `ai_engine/ai_analyzer.py`: Main analyzer script.
+- `ai_engine/trait_profile.json`: Output scores (generated).
+- `green_users.db`: SQLite database for user scores.
+- `requirements.txt`: No external libraries needed.
+- `.gitignore`: Ignores temporary files.
 
-## How It Works
-- Uses Hugging Face's `transformers` library for sentiment analysis.
-- Scores traits based on keywords and sentiment in user answers.
-- Run `ai_analyzer.py` to test with sample answers.
+## How to Run
+1. Import to Replit.
+2. Create `.replit` with `run = "python ai_engine/ai_analyzer.py"`.
+3. Run to see scores for sample answers.
