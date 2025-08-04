@@ -1,6 +1,0 @@
-__pycache__/
-*.pyc
-.replit
-replit.nix
-ai_engine/trait_profile.json
-ai_engine/trait_model.pkl
