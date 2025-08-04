@@ -1,0 +1,6 @@
+__pycache__/
+*.pyc
+.replit
+replit.nix
+ai_engine/trait_profile.json
+green_users.db
