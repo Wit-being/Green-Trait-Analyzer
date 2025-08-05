@@ -1,7 +1,16 @@
 import pickle
 import json
 import sqlite3
+import numpy as np
+import nltk
+from nltk.sentiment.vader import SentimentIntensityAnalyzer
 from datetime import datetime
+
+# Download VADER lexicon (run once)
+nltk.download('vader_lexicon')
+
+# Initialize sentiment analyzer
+sid = SentimentIntensityAnalyzer()
 
 # Load trained models
 with open("ai_engine/trait_models.pkl", "rb") as f:
@@ -11,14 +20,19 @@ with open("ai_engine/trait_models.pkl", "rb") as f:
 def analyze_user_answers(user_id, answers):
     if len(answers) != 8:
         return {"error": "Please provide exactly 8 answers"}
-    
+
     final_scores = {}
     for trait, model in models.items():
-        # Predict probability of "high" trait for each answer
         probabilities = model.predict_proba(answers)[:, 1]  # Probability of "high"
-        # Average and scale to 0-100
-        final_scores[trait] = round(float(np.mean(probabilities) * 100), 2)
-    
+        # Adjust scores with sentiment
+        sentiment_scores = [sid.polarity_scores(answer)['compound'] for answer in answers]
+        adjusted_probs = [
+            prob * (1 + 0.2 * sent)  # Boost for positive sentiment, reduce for negative
+            for prob, sent in zip(probabilities, sentiment_scores)
+        ]
+        final_scores[trait] = round(float(np.mean(adjusted_probs) * 100), 2)
+        final_scores[trait] = max(0, min(final_scores[trait], 100))  # Cap at 0-100
+
     # Save to SQLite
     conn = sqlite3.connect("green_users.db")
     cursor = conn.cursor()
@@ -49,24 +63,24 @@ def analyze_user_answers(user_id, answers):
     ))
     conn.commit()
     conn.close()
-    
+
     # Save to JSON
     with open("ai_engine/trait_profile.json", "w") as f:
         json.dump(final_scores, f, indent=2)
-    
+
     return final_scores
 
 # Sample usage
 if __name__ == "__main__":
     sample_answers = [
-        "Spirituality brings calm; I meditate to find peace.",
-        "Learning to understand others is my daily goal.",
-        "Connection grows when we share honest dreams.",
-        "Love is a deep, spiritual bond built on trust.",
-        "Honest talks prevent misunderstandings.",
-        "Respecting all beliefs fosters unity.",
-        "Soulmates share a harmonious vibe.",
-        "Apologizing sincerely heals friendships."
+        "Prayer and helping others bring me peace.",
+        "I work daily to be more compassionate.",
+        "Connection means sharing spiritual dreams.",
+        "Love is about mutual growth and trust.",
+        "I talk openly to resolve conflicts.",
+        "Respecting all faiths builds community.",
+        "Soulmates share a spiritual harmony.",
+        "I apologized and learned from my errors."
     ]
-    results = analyze_user_answers("test_user_001", sample_answers)
+    results = analyze_user_answers("test_user_002", sample_answers)
     print(json.dumps(results, indent=2))
